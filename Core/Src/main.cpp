@@ -25,6 +25,17 @@
 /* USER CODE BEGIN Includes */
 #include "Device.h"
 
+#ifdef __cplusplus
+extern "C" {
+
+#endif
+
+#include "pca9685.h"
+
+#ifdef __cplusplus
+}
+#endif
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -44,7 +55,7 @@ extern Device oDevice;
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan1;
 
-I2C_HandleTypeDef hi2c1;
+I2C_HandleTypeDef hi2c4;
 
 UART_HandleTypeDef huart3;
 
@@ -78,7 +89,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_CAN1_Init(void);
-static void MX_I2C1_Init(void);
+static void MX_I2C4_Init(void);
 void TransmitTask(void *argument);
 void ReceiveTask(void *argument);
 void ExecutingTask(void *argument);
@@ -123,9 +134,9 @@ int main(void)
   MX_GPIO_Init();
   MX_USART3_UART_Init();
   MX_CAN1_Init();
-  MX_I2C1_Init();
+  MX_I2C4_Init();
   /* USER CODE BEGIN 2 */
-
+  PCA9685_Init(&hi2c4);
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -289,44 +300,44 @@ static void MX_CAN1_Init(void)
   * @param None
   * @retval None
   */
-static void MX_I2C1_Init(void)
+static void MX_I2C4_Init(void)
 {
 
-  /* USER CODE BEGIN I2C1_Init 0 */
+  /* USER CODE BEGIN I2C4_Init 0 */
 
-  /* USER CODE END I2C1_Init 0 */
+  /* USER CODE END I2C4_Init 0 */
 
-  /* USER CODE BEGIN I2C1_Init 1 */
+  /* USER CODE BEGIN I2C4_Init 1 */
 
-  /* USER CODE END I2C1_Init 1 */
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x20303E5D;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  /* USER CODE END I2C4_Init 1 */
+  hi2c4.Instance = I2C4;
+  hi2c4.Init.Timing = 0x20303E5D;
+  hi2c4.Init.OwnAddress1 = 0;
+  hi2c4.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c4.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c4.Init.OwnAddress2 = 0;
+  hi2c4.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c4.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c4.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c4) != HAL_OK)
   {
     Error_Handler();
   }
   /** Configure Analogue filter
   */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c4, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
   {
     Error_Handler();
   }
   /** Configure Digital filter
   */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c4, 0) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN I2C1_Init 2 */
+  /* USER CODE BEGIN I2C4_Init 2 */
 
-  /* USER CODE END I2C1_Init 2 */
+  /* USER CODE END I2C4_Init 2 */
 
 }
 

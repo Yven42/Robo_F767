@@ -10,6 +10,18 @@
 #include "Device.h"
 
 
+#ifdef __cplusplus
+extern "C" {
+
+#endif
+
+#include "pca9685.h"
+
+#ifdef __cplusplus
+}
+#endif
+
+
 Device::Device()
 {
 	//StartValues
@@ -158,6 +170,7 @@ uint8_t Device::u8SetServoValue(uint8_t u8Limp, uint8_t u8Servo, float fAddValue
 		fServoValue[u8Limp][u8Servo] = DEVICE_SERVO_MAX_ANGEL;
 		u8Return = DEVICE_SERVO_LIMIT;
 	}
+	PCA9685_SetServoAngle(u8Limp*5+u8Servo,fServoValue[u8Limp][u8Servo]);
 	return u8Return;
 }
 
