@@ -77,7 +77,7 @@ void Device::vConnection()
 	oConnect.vSendMessage();
 	uTransmitReceive_t Receive;
 
-	if (oConnect.GetNewMessage(Receive) == BUFFER_OK)
+	if (oConnect.u8GetNewMessage(Receive) == BUFFER_OK)
 	{
 		switch (Receive.uDataStatus.u8Mode)
 		{
@@ -94,14 +94,14 @@ void Device::vConnection()
 	}
 
 	//Transmit
-	if (u16Counter % 20 == 0) //all 200ms
+	if (u16Counter % 40 == 0) //all 200ms
 	{
 		oConnect.vTransmitState();
 	}
 	u16Counter ++;
 
 	//Set connenction
-	if (u16Counter > 100)	//all sek
+	if (u16Counter > 200)	//all sek
 	{
 		u16Counter = 0;
 		oConnect.vSetConnectedWith(u8ConnectedWithCache);
@@ -146,7 +146,7 @@ uint8_t Device::u8SetServoValue(uint8_t u8Limp, uint8_t u8Servo, float fAddValue
 {
 	uint8_t u8Return = DEVICE_OK;
 
-	fServoValue[u8Limp][u8Servo] += fAddValue;
+	fServoValue[u8Limp][u8Servo] = fAddValue;
 
 	if (fServoValue[u8Limp][u8Servo] < DEVICE_SERVO_MIN_ANGEL)
 	{

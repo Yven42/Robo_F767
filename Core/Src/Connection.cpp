@@ -10,7 +10,7 @@ Connect::Connect()
 {
 	SystemState 		= State_NotInit;
 	TransmitQueueHandle = osMessageQueueNew(RECEIVE_BUFFER_SIZE , sizeof(uTransmitReceive_t), 0);
-	ReceiveQueueHandle 	=  osMessageQueueNew(TRANSMIT_BUFFER_SIZE, sizeof(uTransmitReceive_t), 0);
+	ReceiveQueueHandle 	= osMessageQueueNew(TRANSMIT_BUFFER_SIZE, sizeof(uTransmitReceive_t), 0);
 	u8OwnClientName 	= 0U;
 	u8ConnectedWith 	= 0U;
 	bReceiveQueueFull 	= false;
@@ -25,7 +25,7 @@ Connect::~Connect()
 void Connect::vInit(uint32_t CLIENT)
 {
 	u8OwnClientName = CLIENT;
-	u8ConnectedWith = 0;
+	u8ConnectedWith = 0U;
 	SystemState 	= State_Ready;
 	TxHeader.StdId 	= CLIENT;
 	TxHeader.ExtId 	= 0x00;
@@ -33,7 +33,7 @@ void Connect::vInit(uint32_t CLIENT)
 	TxHeader.IDE 	= CAN_ID_STD;
 	TxHeader.DLC 	= sizeof(uTransmitReceive_t);
 	TxHeader.TransmitGlobalTime 		= DISABLE;
-	sFilterConfig.FilterBank 			= 0;
+	sFilterConfig.FilterBank 			= 0U;
 	sFilterConfig.FilterMode 			= CAN_FILTERMODE_IDMASK;
 	sFilterConfig.FilterScale 			= CAN_FILTERSCALE_32BIT;
 	sFilterConfig.FilterIdHigh 			= 0x0000;
@@ -63,7 +63,7 @@ void Connect::vTransmit(uTransmitReceive_t& Transmit)
 {
 	if (osMessageQueueGetCount(TransmitQueueHandle) < TRANSMIT_BUFFER_SIZE)
 	{
-		osMessageQueuePut(TransmitQueueHandle,&Transmit, 0, 0);
+		osMessageQueuePut(TransmitQueueHandle,&Transmit, 0U, 0U);
 		bTransmitQueueFull = false;
 	}
 	else
@@ -75,7 +75,7 @@ void Connect::vTransmit(uTransmitReceive_t& Transmit)
 void Connect::vTransmitState()
 {
 	uTransmitReceive_t Transmit;
-	Transmit.uDataStatus.u8Receiver = (uint8_t)CLIENT_CONTROLLER;
+	Transmit.uDataStatus.u8Receiver = CLIENT_ALL;
 	Transmit.uDataStatus.u8Mode = (uint8_t)Mode_StatusMassage;
 	Transmit.uDataStatus.u8State = (uint8_t)SystemState;
 	Transmit.uDataStatus.u8Sender = u8OwnClientName;
@@ -92,10 +92,10 @@ void Connect::vSendMessage()
 {
 	if (osMessageQueueGetCount(TransmitQueueHandle) > 0U)
 	{
-		for (uint16_t u16Counter = 0; u16Counter < osMessageQueueGetCount(TransmitQueueHandle); u16Counter++)
+		for (uint16_t u16Counter = 0U; u16Counter < osMessageQueueGetCount(TransmitQueueHandle); u16Counter++)
 		{
 			uTransmitReceive_t Transmit;
-			osMessageQueueGet(TransmitQueueHandle, &Transmit, 0, 0);
+			osMessageQueueGet(TransmitQueueHandle, &Transmit, 0U, 0U);
 			HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Transmit.u8Data, &TxMailbox);
 			while (HAL_CAN_IsTxMessagePending(&hcan1, TxMailbox));
 		}
@@ -111,7 +111,7 @@ void Connect::vReceive()
 	{
 		if (osMessageQueueGetCount(ReceiveQueueHandle) < RECEIVE_BUFFER_SIZE)
 		{
-			osMessageQueuePut(ReceiveQueueHandle,&Receive, 0, 0);
+			osMessageQueuePut(ReceiveQueueHandle,&Receive, 0U, 0U);
 			bReceiveQueueFull = false;
 		}
 		else
@@ -133,14 +133,19 @@ void Connect::vErrorHandling()
 	}
 }
 
-uint8_t Connect::GetNewMessage(uTransmitReceive_t& Receive)
+uint8_t Connect::u8GetNewMessage(uTransmitReceive_t& Receive)
 {
 	uint8_t u8Return = BUFFER_EMPTY;
 	if (osMessageQueueGetCount(ReceiveQueueHandle) > 0U)
 	{
 		u8Return = BUFFER_OK;
-		osMessageQueueGet(ReceiveQueueHandle, &Receive, 0, 0);
+		osMessageQueueGet(ReceiveQueueHandle, &Receive, 0U, 0U);
 	}
 	return u8Return;
+}
+
+uint8_t Connect::u8GetConnectedWith()
+{
+	return u8ConnectedWith;
 }
 

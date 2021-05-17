@@ -13,13 +13,17 @@
 #define CLIENT_CONTROLLER 		0x80U
 #define CLIENT_BODY_CONTROLLER	0x40U
 #define CLIENT_HEAD_CONTROLLER	0x08U
+#define CLIENT_ALL		 		0xFFU
 
-#define TRANSMIT_BUFFER_SIZE	16U
-#define RECEIVE_BUFFER_SIZE		16U
+#define TRANSMIT_BUFFER_SIZE	128U
+#define RECEIVE_BUFFER_SIZE		128U
 
 #define BUFFER_FULL 1U
 #define BUFFER_EMPTY 255U
 #define BUFFER_OK 0U
+
+typedef StaticQueue_t osStaticMessageQDef_t;
+extern CAN_HandleTypeDef hcan1;
 
 enum Mode
 {
@@ -33,9 +37,6 @@ enum SystemState
 	State_Ready   = 1,
 	State_Error   = 2,
 }typedef SystemState_t;
-
-typedef StaticQueue_t osStaticMessageQDef_t;
-extern CAN_HandleTypeDef hcan1;
 
 struct DataStatus
 {
@@ -74,28 +75,25 @@ public:
 	void vReceive();
 	void vTransmitState();
 	void vSendMessage();
-	uint8_t GetNewMessage(uTransmitReceive_t& Receive);
 	void vSetConnectedWith(uint8_t u8NewConnectedWith);
 	void vErrorHandling();
+	uint8_t u8GetNewMessage(uTransmitReceive_t& Receive);
+	uint8_t u8GetConnectedWith();
 
 private:
 
-	bool bReceiveQueueFull;
-	bool bTransmitQueueFull;
-
-	uint32_t TxMailbox;
-	SystemState_t SystemState;
-
 	osMessageQueueId_t TransmitQueueHandle;
 	osMessageQueueId_t ReceiveQueueHandle;
+	CAN_FilterTypeDef sFilterConfig;
+	CAN_TxHeaderTypeDef TxHeader;
 
 	uint8_t u8OwnClientName;
 	uint8_t u8ConnectedWith;
-
-	CAN_FilterTypeDef sFilterConfig;
-	CAN_TxHeaderTypeDef TxHeader;
+	uint32_t TxMailbox;
+	bool bReceiveQueueFull;
+	bool bTransmitQueueFull;
+	SystemState_t SystemState;
 };
-
 
 
 #endif /* INC_CONNECTION_H_ */

@@ -71,7 +71,6 @@ class Device
 		bool bSetGoToHomeFlag(bool bNewFlagState);
 		bool bGetGoToHomeFlag(void);
 		void vConnection();
-		enum Limps eSelected_Limps;
 		float fGetServoValue(uint8_t u8Limp, uint8_t u8Servo);
 		uint8_t u8SetServoValue(uint8_t u8Limp, uint8_t u8Servo, float fAddValue);
 		uint8_t u8GoToHomePosition(void);
@@ -80,6 +79,7 @@ class Device
 
 	private:
 
+		enum Limps eSelected_Limps;
 		Connect oConnect;
 		bool bMovementFlag = false;
 		bool bGoToHomeFlag = false;
