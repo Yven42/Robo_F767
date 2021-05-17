@@ -12,7 +12,6 @@
 
 Device::Device()
 {
-	//ButtonQueueHandle = osMessageQueueNew(BUTTON_BUFFER_SIZE, sizeof(uint8_t),0);
 	//StartValues
 	eSelected_Limps = Arm_Right;
 	fServoValue[LIMBS_ARM_RIGHT][ARM_SHOULDER_FORWARD] = 60;
@@ -53,6 +52,10 @@ float Device::fGetServoValue(uint8_t u8Limp, uint8_t u8Servo)
 	return this->fServoValue[u8Limp][u8Servo];
 }
 
+void Device::MessageCallback()
+{
+	oConnect.vReceive();
+}
 
 uint8_t Device::u8InitDevice()
 {
@@ -63,7 +66,6 @@ uint8_t Device::u8InitDevice()
 
 uint8_t Device::u8GetButtonBuffer()
 {
-
 	return 0;
 }
 
@@ -77,16 +79,16 @@ void Device::vConnection()
 
 	if (oConnect.GetNewMessage(Receive) == BUFFER_OK)
 	{
-
-		switch (Receive.sData.u8Mode)
+		switch (Receive.uDataStatus.u8Mode)
 		{
 		case Mode_StatusMassage:
-			if (Receive.sData.u8State == State_Ready)
+			if (Receive.uDataStatus.u8State == State_Ready)
 			{
-				u8ConnectedWithCache = u8ConnectedWithCache | Receive.sData.u8Sender;
+				u8ConnectedWithCache = u8ConnectedWithCache | Receive.uDataStatus.u8Sender;
 			}
 		break;
 		case Mode_NewServoValue:
+			u8SetServoValue(Receive.uDataServo.u8Limp,Receive.uDataServo.u8Servo,Receive.uDataServo.fData);
 		break;
 		}
 	}
@@ -97,12 +99,16 @@ void Device::vConnection()
 		oConnect.vTransmitState();
 	}
 	u16Counter ++;
+
+	//Set connenction
 	if (u16Counter > 100)	//all sek
 	{
 		u16Counter = 0;
 		oConnect.vSetConnectedWith(u8ConnectedWithCache);
 		u8ConnectedWithCache = 0;
 	}
+
+	oConnect.vErrorHandling();
 }
 
 /* This method checks the buttons have been pressed and
@@ -139,14 +145,6 @@ void Device::vSetNewHomePosition(void)
 uint8_t Device::u8SetServoValue(uint8_t u8Limp, uint8_t u8Servo, float fAddValue)
 {
 	uint8_t u8Return = DEVICE_OK;
-	if (fAddValue > DEVICE_SERVO_MAX_STEP)
-	{
-		fAddValue = DEVICE_SERVO_MAX_STEP;
-	}
-	if (fAddValue < DEVICE_SERVO_MIN_STEP)
-	{
-		fAddValue = DEVICE_SERVO_MIN_STEP;
-	}
 
 	fServoValue[u8Limp][u8Servo] += fAddValue;
 

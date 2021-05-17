@@ -85,8 +85,6 @@ void ExecutingTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
-
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -467,7 +465,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-	oDevice.oConnect.vReceive();
+	oDevice.MessageCallback();
 }
 
 /* USER CODE END 4 */

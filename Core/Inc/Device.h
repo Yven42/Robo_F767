@@ -43,6 +43,8 @@
 #define LEG_FOOT_FORWARD_BACKWARD 3U
 #define LEG_FOOT_RIGHT_LEFT 4U
 
+#define SERVO_BUFFER_SIZE 32U
+
 #include "main.h"
 #include "cmsis_os.h"
 #include "Connection.h"
@@ -54,7 +56,6 @@ enum Limps
 	Leg_Right = 2,
 	Leg_Left = 3
 };
-
 
 
 class Device
@@ -75,18 +76,16 @@ class Device
 		uint8_t u8SetServoValue(uint8_t u8Limp, uint8_t u8Servo, float fAddValue);
 		uint8_t u8GoToHomePosition(void);
 		void vSetNewHomePosition(void);
-		Connect oConnect;
-
+		void MessageCallback();
 
 	private:
 
+		Connect oConnect;
 		bool bMovementFlag = false;
 		bool bGoToHomeFlag = false;
 		float fServoValue[4][5];
 		float fHomePosition[4][5];
 };
-
-
 
 
 #endif /* APPLICATION_USER_CORE_DEVICE_H_ */

@@ -8,13 +8,13 @@
 
 Connect::Connect()
 {
-	SystemState = State_NotInit;
+	SystemState 		= State_NotInit;
 	TransmitQueueHandle = osMessageQueueNew(RECEIVE_BUFFER_SIZE , sizeof(uTransmitReceive_t), 0);
-	ReceiveQueueHandle =  osMessageQueueNew(TRANSMIT_BUFFER_SIZE, sizeof(uTransmitReceive_t), 0);
-	u8OwnClientName = 0U;
-	u8ConnectedWith = 0U;
-	bReceiveQueueFull = false;
-	bTransmitQueueFull = false;
+	ReceiveQueueHandle 	=  osMessageQueueNew(TRANSMIT_BUFFER_SIZE, sizeof(uTransmitReceive_t), 0);
+	u8OwnClientName 	= 0U;
+	u8ConnectedWith 	= 0U;
+	bReceiveQueueFull 	= false;
+	bTransmitQueueFull 	= false;
 }
 
 Connect::~Connect()
@@ -26,24 +26,25 @@ void Connect::vInit(uint32_t CLIENT)
 {
 	u8OwnClientName = CLIENT;
 	u8ConnectedWith = 0;
-	SystemState = State_Ready;
-	TxHeader.StdId = CLIENT;
-	TxHeader.ExtId = 0x00;
-	TxHeader.RTR = CAN_RTR_DATA;
-	TxHeader.IDE = CAN_ID_STD;
-	TxHeader.DLC = sizeof(uTransmitReceive_t);
-	TxHeader.TransmitGlobalTime = DISABLE;
-	sFilterConfig.FilterBank = 0;
-	sFilterConfig.FilterMode =CAN_FILTERMODE_IDMASK;
-	sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
-	sFilterConfig.FilterIdHigh = 0x0000;
-	sFilterConfig.FilterIdLow = 0x0000;
-	sFilterConfig.FilterMaskIdHigh = 0x0000;
-	sFilterConfig.FilterMaskIdLow = 0x0000;
-	sFilterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-	sFilterConfig.FilterActivation = ENABLE;
-	sFilterConfig.SlaveStartFilterBank = 14;
+	SystemState 	= State_Ready;
+	TxHeader.StdId 	= CLIENT;
+	TxHeader.ExtId 	= 0x00;
+	TxHeader.RTR 	= CAN_RTR_DATA;
+	TxHeader.IDE 	= CAN_ID_STD;
+	TxHeader.DLC 	= sizeof(uTransmitReceive_t);
+	TxHeader.TransmitGlobalTime 		= DISABLE;
+	sFilterConfig.FilterBank 			= 0;
+	sFilterConfig.FilterMode 			= CAN_FILTERMODE_IDMASK;
+	sFilterConfig.FilterScale 			= CAN_FILTERSCALE_32BIT;
+	sFilterConfig.FilterIdHigh 			= 0x0000;
+	sFilterConfig.FilterIdLow 			= 0x0000;
+	sFilterConfig.FilterMaskIdHigh 		= 0x0000;
+	sFilterConfig.FilterMaskIdLow 		= 0x0000;
+	sFilterConfig.FilterFIFOAssignment 	= CAN_FILTER_FIFO0;
+	sFilterConfig.FilterActivation 		= ENABLE;
+	sFilterConfig.SlaveStartFilterBank 	= 14;
 
+	//CAN start
 	if( HAL_CAN_ConfigFilter(&hcan1, &sFilterConfig) != HAL_OK)
 	{
 		Error_Handler();
@@ -74,10 +75,10 @@ void Connect::vTransmit(uTransmitReceive_t& Transmit)
 void Connect::vTransmitState()
 {
 	uTransmitReceive_t Transmit;
-	Transmit.sData.u8Receiver = (uint8_t)CLIENT_CONTROLLER;
-	Transmit.sData.u8Mode = (uint8_t)Mode_StatusMassage;
-	Transmit.sData.u8State = (uint8_t)SystemState;
-	Transmit.sData.u8Sender = u8OwnClientName;
+	Transmit.uDataStatus.u8Receiver = (uint8_t)CLIENT_CONTROLLER;
+	Transmit.uDataStatus.u8Mode = (uint8_t)Mode_StatusMassage;
+	Transmit.uDataStatus.u8State = (uint8_t)SystemState;
+	Transmit.uDataStatus.u8Sender = u8OwnClientName;
 
 	vTransmit(Transmit);
 }
@@ -106,7 +107,7 @@ void Connect::vReceive()
 	uTransmitReceive_t Receive;
 	CAN_RxHeaderTypeDef RxHeader;
 	HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &RxHeader, Receive.u8Data);
-	if ((Receive.sData.u8Receiver & u8OwnClientName) == u8OwnClientName)
+	if ((Receive.uDataStatus.u8Receiver & u8OwnClientName) == u8OwnClientName)
 	{
 		if (osMessageQueueGetCount(ReceiveQueueHandle) < RECEIVE_BUFFER_SIZE)
 		{
@@ -117,6 +118,18 @@ void Connect::vReceive()
 		{
 			bReceiveQueueFull = true;
 		}
+	}
+}
+
+void Connect::vErrorHandling()
+{
+	if (bReceiveQueueFull == true || bTransmitQueueFull == true)
+	{
+		SystemState = State_Error;
+	}
+	else
+	{
+		SystemState = State_Ready;
 	}
 }
 

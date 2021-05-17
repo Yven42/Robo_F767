@@ -37,19 +37,29 @@ enum SystemState
 typedef StaticQueue_t osStaticMessageQDef_t;
 extern CAN_HandleTypeDef hcan1;
 
-struct Data
+struct DataStatus
 {
 	uint8_t u8Receiver;
 	uint8_t u8Mode;
 	uint8_t u8State;
 	uint8_t u8Sender;
+	uint32_t u32Data;
+}typedef uDataStatus_t;
+
+struct DataServo
+{
+	uint8_t u8Receiver;
+	uint8_t u8Mode;
+	uint8_t u8Limp;
+	uint8_t u8Servo;
 	float fData;
-}typedef uData_t;
+}typedef uDataServo_t;
 
 union TransmitReceive
 {
-	uint8_t u8Data[sizeof(uData_t)];
-	uData_t sData;
+	uint8_t u8Data[sizeof(uDataStatus_t)];
+	uDataStatus_t uDataStatus;
+	uDataServo_t uDataServo;
 }typedef uTransmitReceive_t;
 
 
@@ -66,6 +76,7 @@ public:
 	void vSendMessage();
 	uint8_t GetNewMessage(uTransmitReceive_t& Receive);
 	void vSetConnectedWith(uint8_t u8NewConnectedWith);
+	void vErrorHandling();
 
 private:
 
