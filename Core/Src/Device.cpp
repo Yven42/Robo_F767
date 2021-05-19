@@ -57,6 +57,18 @@ Device::Device()
 			fHomePosition[u8LimpCounter][u8ServoCounter] = 80;
 		}
 	}
+
+	fHomePosition[LIMBS_ARM_RIGHT][ARM_SHOULDER_FORWARD]	= 90;
+	fHomePosition[LIMBS_ARM_RIGHT][ARM_SHOULDER_UP] 		= 154;
+	fHomePosition[LIMBS_ARM_RIGHT][ARM_ELBOW] 				= 100;
+	fHomePosition[LIMBS_ARM_RIGHT][ARM_HAND_ROTATE] 		= 94;
+	fHomePosition[LIMBS_ARM_RIGHT][ARM_HAND_OPEN] 			= 86;
+
+	fHomePosition[LIMBS_ARM_LEFT][ARM_SHOULDER_FORWARD] 	= 94;
+	fHomePosition[LIMBS_ARM_LEFT][ARM_SHOULDER_UP] 		= 3;
+	fHomePosition[LIMBS_ARM_LEFT][ARM_ELBOW] 			= 87;
+	fHomePosition[LIMBS_ARM_LEFT][ARM_HAND_ROTATE] 		= 94;
+	fHomePosition[LIMBS_ARM_LEFT][ARM_HAND_OPEN] 		= 86;
 }
 
 float Device::fGetServoValue(uint8_t u8Limp, uint8_t u8Servo)
@@ -72,6 +84,22 @@ void Device::MessageCallback()
 uint8_t Device::u8InitDevice()
 {
 	oConnect.vInit(CLIENT_BODY_CONTROLLER);
+	u8SetServoValue(LIMBS_ARM_RIGHT, ARM_SHOULDER_FORWARD, 	fHomePosition[LIMBS_ARM_RIGHT][ARM_SHOULDER_FORWARD]);
+	u8SetServoValue(LIMBS_ARM_LEFT, ARM_SHOULDER_FORWARD, 	fHomePosition[LIMBS_ARM_LEFT][ARM_SHOULDER_FORWARD]);
+	osDelay(1000);
+	u8SetServoValue(LIMBS_ARM_RIGHT, ARM_SHOULDER_UP, 		fHomePosition[LIMBS_ARM_RIGHT][ARM_SHOULDER_UP]);
+	u8SetServoValue(LIMBS_ARM_LEFT, ARM_SHOULDER_UP, 		fHomePosition[LIMBS_ARM_LEFT][ARM_SHOULDER_UP]);
+	osDelay(1000);
+	u8SetServoValue(LIMBS_ARM_RIGHT, ARM_ELBOW, 			fHomePosition[LIMBS_ARM_RIGHT][ARM_ELBOW]);
+	u8SetServoValue(LIMBS_ARM_LEFT, ARM_ELBOW, 			fHomePosition[LIMBS_ARM_LEFT][ARM_ELBOW]);
+	osDelay(1000);
+	u8SetServoValue(LIMBS_ARM_RIGHT, ARM_HAND_ROTATE, 		fHomePosition[LIMBS_ARM_RIGHT][ARM_HAND_ROTATE]);
+	u8SetServoValue(LIMBS_ARM_LEFT, ARM_HAND_ROTATE, 		fHomePosition[LIMBS_ARM_LEFT][ARM_HAND_ROTATE]);
+	osDelay(1000);
+	u8SetServoValue(LIMBS_ARM_RIGHT, ARM_HAND_OPEN, 		fHomePosition[LIMBS_ARM_RIGHT][ARM_HAND_OPEN]);
+	u8SetServoValue(LIMBS_ARM_LEFT, ARM_HAND_OPEN, 		fHomePosition[LIMBS_ARM_LEFT][ARM_HAND_OPEN]);
+	osDelay(1000);
+
 	return 0;
 }
 
@@ -170,7 +198,7 @@ uint8_t Device::u8SetServoValue(uint8_t u8Limp, uint8_t u8Servo, float fAddValue
 		fServoValue[u8Limp][u8Servo] = DEVICE_SERVO_MAX_ANGEL;
 		u8Return = DEVICE_SERVO_LIMIT;
 	}
-	PCA9685_SetServoAngle(u8Limp*5+u8Servo,fServoValue[u8Limp][u8Servo]);
+	PCA9685_SetServoAngle(u8Limp*5 + u8Servo,fServoValue[u8Limp][u8Servo]);
 	return u8Return;
 }
 

@@ -173,7 +173,6 @@ int main(void)
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
-  oDevice.u8InitDevice();
   /* add events, ... */
   /* USER CODE END RTOS_EVENTS */
 
@@ -491,6 +490,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 void TransmitTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
+	oDevice.u8InitDevice();
   /* Infinite loop */
   for(;;)
   {
