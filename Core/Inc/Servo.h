@@ -1,16 +1,14 @@
 /*
- * pca9685.h
+ * Servo.h
  *
  *  Created on: 20.01.2019
  *      Author: Mateusz Salamon
- *		mateusz@msalamon.pl
- *
- *      Website: https://msalamon.pl/nigdy-wiecej-multipleksowania-na-gpio!-max7219-w-akcji-cz-3/
- *      GitHub:  https://github.com/lamik/Servos_PWM_STM32_HAL
+ *  Changed by: Yven Vogt
  */
 
-#ifndef PCA9685_H_
-#define PCA9685_H_
+#ifndef INC_SERVO_H_
+#define INC_SERVO_H_
+
 
 //
 //	Enable Servo control mode
@@ -71,21 +69,25 @@ typedef enum
 	PCA9685_ERROR	= 1
 }PCA9685_STATUS;
 
-PCA9685_STATUS PCA9685_SoftwareReset(void);
-PCA9685_STATUS PCA9685_SleepMode(uint8_t Enable);
-PCA9685_STATUS PCA9685_RestartMode(uint8_t Enable);
-PCA9685_STATUS PCA9685_AutoIncrement(uint8_t Enable);
+class Servo
+{
+public:
+	PCA9685_STATUS PCA9685_SoftwareReset(void);
+	PCA9685_STATUS PCA9685_SetBit(uint8_t Register, uint8_t Bit, uint8_t Value);
+	PCA9685_STATUS PCA9685_SleepMode(uint8_t Enable);
+	PCA9685_STATUS PCA9685_RestartMode(uint8_t Enable);
+	PCA9685_STATUS PCA9685_AutoIncrement(uint8_t Enable);
+	PCA9685_STATUS PCA9685_SetPwm(uint8_t Channel, uint16_t OnTime, uint16_t OffTime);
+	PCA9685_STATUS PCA9685_SetPin(uint8_t Channel, uint16_t Value, uint8_t Invert);
+	PCA9685_STATUS PCA9685_Init(I2C_HandleTypeDef *hi2c);
+	PCA9685_STATUS PCA9685_SetServoAngle(uint8_t Channel, float Angle);
+	PCA9685_STATUS PCA9685_SubaddressRespond(SubaddressBit Subaddress, uint8_t Enable);
+	PCA9685_STATUS PCA9685_AllCallRespond(uint8_t Enable);
+	PCA9685_STATUS PCA9685_SetPwmFrequency(uint16_t Frequency);
+private:
+	I2C_HandleTypeDef *pca9685_i2c;
+};
 
-#ifndef PCA9685_SERVO_MODE
-PCA9685_STATUS PCA9685_SetPwmFrequency(uint16_t Frequency);
-#endif
 
-PCA9685_STATUS PCA9685_SetPwm(uint8_t Channel, uint16_t OnTime, uint16_t OffTime);
-PCA9685_STATUS PCA9685_SetPin(uint8_t Channel, uint16_t Value, uint8_t Invert);
-#ifdef PCA9685_SERVO_MODE
-PCA9685_STATUS PCA9685_SetServoAngle(uint8_t Channel, float Angle);
-#endif
 
-PCA9685_STATUS PCA9685_Init(I2C_HandleTypeDef *hi2c);
-
-#endif /* PCA9685_H_ */
+#endif /* INC_SERVO_H_ */

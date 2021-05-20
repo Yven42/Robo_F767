@@ -48,6 +48,11 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "Connection.h"
+#include "Servo.h"
+
+extern I2C_HandleTypeDef hi2c4;
+
+extern I2C_HandleTypeDef hi2c2;
 
 enum Limps
 {
@@ -79,6 +84,8 @@ class Device
 
 	private:
 
+		Servo oServoArms;
+		Servo oServoLegs;
 		enum Limps eSelected_Limps;
 		Connect oConnect;
 		bool bMovementFlag = false;

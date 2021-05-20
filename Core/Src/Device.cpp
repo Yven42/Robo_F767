@@ -15,7 +15,7 @@ extern "C" {
 
 #endif
 
-#include "pca9685.h"
+//...
 
 #ifdef __cplusplus
 }
@@ -50,14 +50,6 @@ Device::Device()
 	fServoValue[LIMBS_LEG_LEFT][LEG_FOOT_FORWARD_BACKWARD]	= 10;
 	fServoValue[LIMBS_LEG_LEFT][LEG_FOOT_RIGHT_LEFT] 		= 10;
 
-	for (uint8_t u8LimpCounter = 0; u8LimpCounter < 4U; u8LimpCounter++)
-	{
-		for (uint8_t u8ServoCounter = 0; u8ServoCounter < 5U; u8ServoCounter++)
-		{
-			fHomePosition[u8LimpCounter][u8ServoCounter] = 80;
-		}
-	}
-
 	fHomePosition[LIMBS_ARM_RIGHT][ARM_SHOULDER_FORWARD]	= 90;
 	fHomePosition[LIMBS_ARM_RIGHT][ARM_SHOULDER_UP] 		= 154;
 	fHomePosition[LIMBS_ARM_RIGHT][ARM_ELBOW] 				= 100;
@@ -65,10 +57,22 @@ Device::Device()
 	fHomePosition[LIMBS_ARM_RIGHT][ARM_HAND_OPEN] 			= 86;
 
 	fHomePosition[LIMBS_ARM_LEFT][ARM_SHOULDER_FORWARD] 	= 94;
-	fHomePosition[LIMBS_ARM_LEFT][ARM_SHOULDER_UP] 		= 3;
-	fHomePosition[LIMBS_ARM_LEFT][ARM_ELBOW] 			= 87;
-	fHomePosition[LIMBS_ARM_LEFT][ARM_HAND_ROTATE] 		= 94;
-	fHomePosition[LIMBS_ARM_LEFT][ARM_HAND_OPEN] 		= 86;
+	fHomePosition[LIMBS_ARM_LEFT][ARM_SHOULDER_UP] 			= 3;
+	fHomePosition[LIMBS_ARM_LEFT][ARM_ELBOW] 				= 87;
+	fHomePosition[LIMBS_ARM_LEFT][ARM_HAND_ROTATE] 			= 94;
+	fHomePosition[LIMBS_ARM_LEFT][ARM_HAND_OPEN] 			= 86;
+
+	fHomePosition[LIMBS_LEG_RIGHT][LEG_UP_DOWN] 				= 84;
+	fHomePosition[LIMBS_LEG_RIGHT][LEG_FORWARD_BACKWARD] 		= 83;
+	fHomePosition[LIMBS_LEG_RIGHT][LEG_KNEE] 					= 17;
+	fHomePosition[LIMBS_LEG_RIGHT][LEG_FOOT_FORWARD_BACKWARD]	= 91;
+	fHomePosition[LIMBS_LEG_RIGHT][LEG_FOOT_RIGHT_LEFT] 		= 83;
+
+	fHomePosition[LIMBS_LEG_LEFT][LEG_UP_DOWN] 					= 80.5;
+	fHomePosition[LIMBS_LEG_LEFT][LEG_FORWARD_BACKWARD] 		= 97;
+	fHomePosition[LIMBS_LEG_LEFT][LEG_KNEE] 					= 156;
+	fHomePosition[LIMBS_LEG_LEFT][LEG_FOOT_FORWARD_BACKWARD]	= 94;
+	fHomePosition[LIMBS_LEG_LEFT][LEG_FOOT_RIGHT_LEFT] 			= 93.5;
 }
 
 float Device::fGetServoValue(uint8_t u8Limp, uint8_t u8Servo)
@@ -83,21 +87,38 @@ void Device::MessageCallback()
 
 uint8_t Device::u8InitDevice()
 {
+	oServoArms.PCA9685_Init(&hi2c4);
+	oServoLegs.PCA9685_Init(&hi2c2);
 	oConnect.vInit(CLIENT_BODY_CONTROLLER);
-	u8SetServoValue(LIMBS_ARM_RIGHT, ARM_SHOULDER_FORWARD, 	fHomePosition[LIMBS_ARM_RIGHT][ARM_SHOULDER_FORWARD]);
-	u8SetServoValue(LIMBS_ARM_LEFT, ARM_SHOULDER_FORWARD, 	fHomePosition[LIMBS_ARM_LEFT][ARM_SHOULDER_FORWARD]);
+	//Home Position Step 1
+	u8SetServoValue(LIMBS_ARM_RIGHT, 	ARM_SHOULDER_FORWARD, 		fHomePosition[LIMBS_ARM_RIGHT]	[ARM_SHOULDER_FORWARD]);
+	u8SetServoValue(LIMBS_ARM_LEFT, 	ARM_SHOULDER_FORWARD, 		fHomePosition[LIMBS_ARM_LEFT]	[ARM_SHOULDER_FORWARD]);
+	u8SetServoValue(LIMBS_LEG_RIGHT, 	LEG_UP_DOWN, 				fHomePosition[LIMBS_LEG_RIGHT]	[LEG_UP_DOWN]);
+	u8SetServoValue(LIMBS_LEG_LEFT, 	LEG_UP_DOWN, 				fHomePosition[LIMBS_LEG_LEFT]	[LEG_UP_DOWN]);
 	osDelay(1000);
-	u8SetServoValue(LIMBS_ARM_RIGHT, ARM_SHOULDER_UP, 		fHomePosition[LIMBS_ARM_RIGHT][ARM_SHOULDER_UP]);
-	u8SetServoValue(LIMBS_ARM_LEFT, ARM_SHOULDER_UP, 		fHomePosition[LIMBS_ARM_LEFT][ARM_SHOULDER_UP]);
+	//Home Position Step 2
+	u8SetServoValue(LIMBS_ARM_RIGHT, 	ARM_SHOULDER_UP, 			fHomePosition[LIMBS_ARM_RIGHT]	[ARM_SHOULDER_UP]);
+	u8SetServoValue(LIMBS_ARM_LEFT, 	ARM_SHOULDER_UP, 			fHomePosition[LIMBS_ARM_LEFT]	[ARM_SHOULDER_UP]);
+	u8SetServoValue(LIMBS_LEG_RIGHT, 	LEG_FORWARD_BACKWARD,		fHomePosition[LIMBS_LEG_RIGHT]	[LEG_FORWARD_BACKWARD]);
+	u8SetServoValue(LIMBS_LEG_LEFT, 	LEG_FORWARD_BACKWARD, 		fHomePosition[LIMBS_LEG_LEFT]	[LEG_FORWARD_BACKWARD]);
 	osDelay(1000);
-	u8SetServoValue(LIMBS_ARM_RIGHT, ARM_ELBOW, 			fHomePosition[LIMBS_ARM_RIGHT][ARM_ELBOW]);
-	u8SetServoValue(LIMBS_ARM_LEFT, ARM_ELBOW, 			fHomePosition[LIMBS_ARM_LEFT][ARM_ELBOW]);
+	//Home Position Step 3
+	u8SetServoValue(LIMBS_ARM_RIGHT, 	ARM_ELBOW, 					fHomePosition[LIMBS_ARM_RIGHT]	[ARM_ELBOW]);
+	u8SetServoValue(LIMBS_ARM_LEFT, 	ARM_ELBOW, 					fHomePosition[LIMBS_ARM_LEFT]	[ARM_ELBOW]);
+	u8SetServoValue(LIMBS_LEG_RIGHT, 	LEG_KNEE,					fHomePosition[LIMBS_LEG_RIGHT]	[LEG_KNEE]);
+	u8SetServoValue(LIMBS_LEG_LEFT, 	LEG_KNEE, 					fHomePosition[LIMBS_LEG_LEFT]	[LEG_KNEE]);
 	osDelay(1000);
-	u8SetServoValue(LIMBS_ARM_RIGHT, ARM_HAND_ROTATE, 		fHomePosition[LIMBS_ARM_RIGHT][ARM_HAND_ROTATE]);
-	u8SetServoValue(LIMBS_ARM_LEFT, ARM_HAND_ROTATE, 		fHomePosition[LIMBS_ARM_LEFT][ARM_HAND_ROTATE]);
+	//Home Position Step 4
+	u8SetServoValue(LIMBS_ARM_RIGHT, 	ARM_HAND_ROTATE, 			fHomePosition[LIMBS_ARM_RIGHT]	[ARM_HAND_ROTATE]);
+	u8SetServoValue(LIMBS_ARM_LEFT, 	ARM_HAND_ROTATE, 			fHomePosition[LIMBS_ARM_LEFT]	[ARM_HAND_ROTATE]);
+	u8SetServoValue(LIMBS_LEG_RIGHT,  	LEG_FOOT_FORWARD_BACKWARD,	fHomePosition[LIMBS_LEG_RIGHT]	[LEG_FOOT_FORWARD_BACKWARD]);
+	u8SetServoValue(LIMBS_LEG_LEFT,   	LEG_FOOT_FORWARD_BACKWARD,	fHomePosition[LIMBS_LEG_LEFT]	[LEG_FOOT_FORWARD_BACKWARD]);
 	osDelay(1000);
-	u8SetServoValue(LIMBS_ARM_RIGHT, ARM_HAND_OPEN, 		fHomePosition[LIMBS_ARM_RIGHT][ARM_HAND_OPEN]);
-	u8SetServoValue(LIMBS_ARM_LEFT, ARM_HAND_OPEN, 		fHomePosition[LIMBS_ARM_LEFT][ARM_HAND_OPEN]);
+	//Home Position Step 5
+	u8SetServoValue(LIMBS_ARM_RIGHT, 	ARM_HAND_OPEN, 				fHomePosition[LIMBS_ARM_RIGHT]	[ARM_HAND_OPEN]);
+	u8SetServoValue(LIMBS_ARM_LEFT, 	ARM_HAND_OPEN, 				fHomePosition[LIMBS_ARM_LEFT]	[ARM_HAND_OPEN]);
+	u8SetServoValue(LIMBS_LEG_RIGHT,  	LEG_FOOT_RIGHT_LEFT,		fHomePosition[LIMBS_LEG_RIGHT]	[LEG_FOOT_RIGHT_LEFT]);
+	u8SetServoValue(LIMBS_LEG_LEFT,   	LEG_FOOT_RIGHT_LEFT,		fHomePosition[LIMBS_LEG_LEFT]	[LEG_FOOT_RIGHT_LEFT]);
 	osDelay(1000);
 
 	return 0;
@@ -198,7 +219,15 @@ uint8_t Device::u8SetServoValue(uint8_t u8Limp, uint8_t u8Servo, float fAddValue
 		fServoValue[u8Limp][u8Servo] = DEVICE_SERVO_MAX_ANGEL;
 		u8Return = DEVICE_SERVO_LIMIT;
 	}
-	PCA9685_SetServoAngle(u8Limp*5 + u8Servo,fServoValue[u8Limp][u8Servo]);
+	if ((u8Limp == LIMBS_ARM_LEFT) || (u8Limp == LIMBS_ARM_RIGHT))
+	{
+		oServoArms.PCA9685_SetServoAngle(u8Limp*5 + u8Servo,fServoValue[u8Limp][u8Servo]);
+	}
+	if ((u8Limp == LIMBS_LEG_LEFT) || (u8Limp == LIMBS_LEG_RIGHT))
+	{
+		oServoLegs.PCA9685_SetServoAngle(((u8Limp-2) * 5) + u8Servo,fServoValue[u8Limp][u8Servo]);
+	}
+
 	return u8Return;
 }
 
